@@ -1,0 +1,16 @@
+
+.env
+.DS_Store
+*.log
+
+.venv/
+venv/
+env/
+*.pyc
+
+# It doesn't have a frontend yet
+#/frontend/node_modules/ 
+#/frontend/build/
+
+*.db
+*.sqlite
