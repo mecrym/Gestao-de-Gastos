@@ -60,8 +60,9 @@ models.Base.metadata.create_all(bind=engine)
 
 @app.get("/")
 def root():
-    return {"message": "API de Gestão de Gastos está rodando!"}
+    return {"message": "API is running!"}
 
+# The categories endpoints
 @app.post("/categories/", response_model = CategoryModel, status_code=201)
 async def create_category(category: CategoryCreate, db: db_dependancy):
     try:
@@ -75,7 +76,7 @@ async def create_category(category: CategoryCreate, db: db_dependancy):
         raise HTTPException(status_code = 500, detail = f"Error: {str(e)}")
 
 @app.get("/categories/", response_model = List[CategoryModel], status_code = 200)
-async def read_categories(db: db_dependancy, skip: int =0, limit: int = 100): # u may need to alter the limit later, do the front, test it, and then later we see what to do
+async def read_categories(db: db_dependancy, skip: int = 0, limit: int = 100): # u may need to alter the limit later, do the front, test it, and then later we see what to do
     try:
         categories = db.query(models.Category).offset(skip).limit(limit).all()
         return categories
@@ -83,7 +84,7 @@ async def read_categories(db: db_dependancy, skip: int =0, limit: int = 100): # 
         raise HTTPException(status_code = 500, detail = f"Error: {str(e)}")
 
 @app.get("/categories/{category_id}", response_model = CategoryModel, status_code = 200)
-async def read_categories(category_id: int, db: db_dependancy):
+async def read_category(category_id: int, db: db_dependancy):
     try:
         db_category = db.query(models.Category).filter(models.Category.id == category_id).first()
         if not db_category:
@@ -115,7 +116,6 @@ async def delete_category(category_id: int, db: db_dependancy):
             raise HTTPException(status_code = 404, detail = "Category not found")
 
         num_payments = len(db_category.payments)
-        return {"message": f"Deleting {db_category.id} with {num_payments}"}
         print(f"Deleting {db_category.id} with {num_payments}")
 
         db.delete(db_category)
@@ -135,6 +135,66 @@ async def search_categories(name: Optional[str] = None, db: Session = Depends(ge
         query = query.order_by(models.Category.name.asc())
         return query.all()
     except Exception as e:
+        db.rollback()
         raise HTTPException(status_code = 500, detail = f"Error: {str(e)}")
+
+# The payments endpoints
+@app.post("/payments/", response_model = PaymentModel, status_code = 201)
+async def create_payment(payment: PaymentCreate, db: db_dependancy):
+    try:
+        category = db.query(models.Category).filter(models.Category.id == payment.category_id).first()
+        if not category:
+            raise HTTPException(status_code = 400, detail = "category not found or does not exist")
+
+        db_payment = models.Payment(**payment.dict())
+        db.add(db_payment)
+        db.commit()
+        db.refresh(db_payment)
+        return db_payment
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code = 500, detail = f"Error: {str(e)}")
+
+@app.get("/payment/", response_model = List[PaymentModel], status_code = 200)
+async def read_payments(db: db_dependancy, skip: int = 0, limit: int = 200):# I'm changing the limit because it makes more sence to have more payments than categories, but I will need to adjust it later, who has 200 diferent payments to do???
+    try:
+        payments = db.query(models.Payment).offset(skip).limit(limit).all()
+        return payments
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code = 500, detail = f"Error: {str(e)}")
+
+@app.get("/payment/{payment_id}", response_model = PaymentModel, status_code = 200)
+async def read_payment(payment_id: int, db: db_dependancy):
+    try:
+        db_payment = db.query(models.Payment).filter(models.Payment.id == payment_id).first()
+        if not db_payment:
+            raise HTTPException(status_code = 404, detail = "Payment not found")
+        return db_payment
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code = 500, detail = f"Error: {str(e)}")
+
+@app.put("/payment/{payment_id}", response_model = PaymentModel, status_code = 200)
+async def update_payment(payment_id: int, payment: PaymentCreate, db: db_dependancy):
+    try:
+        db_payment = db.query(models.Payment).filter(models.Payment.id == payment_id).first()
+        if not db_payment:
+            raise HTTPException(status_code = 404, detail = "payment not found")
+
+        payload = payment.dict() #do not use payments, u will mix it up with the other variables and functions later
+        if "category_id" in payload:
+            new_category = db.query(models.Category).filter(models.Category.id == payload["category_id"]).first()
+            if not new_category:
+                raise HTTPException(status_code = 400, detail = "category not found or does not exist")
+
+        for key, value in payment.dict().items():
+            setattr(db_payment, key, value)
+        db.commit()
+        db.refresh(db_payment)
+        return db_payment
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code = 500, detail = f"Error:{str(e)}")
 
 
