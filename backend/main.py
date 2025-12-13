@@ -62,17 +62,79 @@ models.Base.metadata.create_all(bind=engine)
 def root():
     return {"message": "API de Gestão de Gastos está rodando!"}
 
-@app.post("/categories/", response_model=CategoryModel, status_code=201)
+@app.post("/categories/", response_model = CategoryModel, status_code=201)
 async def create_category(category: CategoryCreate, db: db_dependancy):
-    db_category = models.Category(**category.dict())
-    db.add(db_category)
-    db.commit()
-    db.refresh(db_category)
-    return db_category
-@app.get("/categories/", response_model=List[CategoryModel])
-async def list_categories(db: db_dependancy):
-    categories = db.query(models.Category).all()
-    return categories
+    try:
+        db_category = models.Category(**category.dict())
+        db.add(db_category)
+        db.commit()
+        db.refresh(db_category)
+        return db_category
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code = 500, detail = f"Error: {str(e)}")
 
+@app.get("/categories/", response_model = List[CategoryModel], status_code = 200)
+async def read_categories(db: db_dependancy, skip: int =0, limit: int = 100): # u may need to alter the limit later, do the front, test it, and then later we see what to do
+    try:
+        categories = db.query(models.Category).offset(skip).limit(limit).all()
+        return categories
+    except Exception as e:
+        raise HTTPException(status_code = 500, detail = f"Error: {str(e)}")
+
+@app.get("/categories/{category_id}", response_model = CategoryModel, status_code = 200)
+async def read_categories(category_id: int, db: db_dependancy):
+    try:
+        db_category = db.query(models.Category).filter(models.Category.id == category_id).first()
+        if not db_category:
+            raise HTTPException(status_code = 404, detail = "Category not found")
+        return db_category
+    except Exception as e:
+        raise HTTPException(status_code  = 500, detail = f"Error: {str(e)}")
+
+@app.put("/categories/{category_id}", response_model = CategoryModel, status_code = 200)
+async def update_category(category_id: int, category: CategoryCreate, db: db_dependancy):
+    try:
+        db_category = db.query(models.Category).filter(models.Category.id == category_id).first()
+        if not db_category:
+            raise HTTPException(status_code = 404, detail = "Category not found")
+        for key, value in category.dict().items():
+            setattr(db_category, key, value)
+        db.commit()
+        db.refresh(db_category)
+        return db_category
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code = 500, detail = f"Error: {str(e)}")
+
+@app.delete("/categories/{category_id}", status_code = 204)
+async def delete_category(category_id: int, db: db_dependancy):
+    try:
+        db_category = db.query(models.Category).filter(models.Category.id == category_id).first()
+        if not db_category:
+            raise HTTPException(status_code = 404, detail = "Category not found")
+
+        num_payments = len(db_category.payments)
+        return {"message": f"Deleting {db_category.id} with {num_payments}"}
+        print(f"Deleting {db_category.id} with {num_payments}")
+
+        db.delete(db_category)
+        db.commit()
+        return None
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code = 500, detail = f"Error: {str(e)}")
+
+# Don't even think in changing it later for abb, the db alredy does this by defaul!!!!!
+@app.get("/search/categories/", response_model = List[CategoryModel], status_code = 200)
+async def search_categories(name: Optional[str] = None, db: Session = Depends(get_db)): #look it up later as to why it doesn't' accept de db_dependacy like the others, the message is that it needs a default value
+    try:
+        query = db.query(models.Category)
+        if name:
+            query = query.filter(models.Category.name.startswith(name))
+        query = query.order_by(models.Category.name.asc())
+        return query.all()
+    except Exception as e:
+        raise HTTPException(status_code = 500, detail = f"Error: {str(e)}")
 
 
