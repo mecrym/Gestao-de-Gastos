@@ -1,20 +1,18 @@
 from fastapi import FastAPI, HTTPException, Depends
-from typing import Annotated, List, Optional # because python is dinamically typed... unfortunately...
-from sqlalchemy.orm import Session
+from typing import Annotated, List, Optional
 from pydantic import BaseModel
 from database import SessionLocal, engine
+from sqlalchemy.orm import Session
 import models
-from fastapi.middleware.cors import CORSMiddleware # this... is to defeat u'r greatest enemy, the one who should not be named, the evil CORS...
+from fastapi.middleware.cors import CORSMiddleware 
 
 app = FastAPI()
 
-# Duda U MUST READ THIS!!!
-origins = [ "http://localhost", "http://localhost:3000"] # ok, if I remenber corectly, ur frontend uses the 5573 port on ocasion, if u run into a problem, add it here... 
+origins = [ "http://localhost", "http://localhost:3000"] 
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    # there are more options, but for now this is enough, we will see later if we need to add more
 )
 
 class PaymentBase(BaseModel):
@@ -35,7 +33,7 @@ class PaymentModel(PaymentBase):
 class CategoryBase(BaseModel):
     name: str
     description: Optional[str] = None
-    color: Optional[str] = None # typing is easier for me, but if there's time, it wold be beter to selec from a color weel
+    color: Optional[str] = None
 
 class CategoryCreate(CategoryBase):
     pass
@@ -46,8 +44,6 @@ class CategoryModel(CategoryBase):
     class Config:
         orm_mode = True
 
-# It shold only be open when there is a request, and it should close it there aren't
-# If there's time, u should implement error handling and logging
 def get_db():
     db = SessionLocal()
     try:
@@ -55,7 +51,7 @@ def get_db():
     finally:
         db.close()
 
-db_dependancy = Annotated[Session, Depends(get_db)]
+db_dependency = Annotated[Session, Depends(get_db)]
 models.Base.metadata.create_all(bind=engine)
 
 @app.get("/")
@@ -64,7 +60,7 @@ def root():
 
 # The categories endpoints
 @app.post("/categories/", response_model = CategoryModel, status_code=201)
-async def create_category(category: CategoryCreate, db: db_dependancy):
+async def create_category(category: CategoryCreate, db: db_dependency):
     try:
         db_category = models.Category(**category.dict())
         db.add(db_category)
@@ -76,7 +72,7 @@ async def create_category(category: CategoryCreate, db: db_dependancy):
         raise HTTPException(status_code = 500, detail = f"Error: {str(e)}")
 
 @app.get("/categories/", response_model = List[CategoryModel], status_code = 200)
-async def read_categories(db: db_dependancy, skip: int = 0, limit: int = 100): # u may need to alter the limit later, do the front, test it, and then later we see what to do
+async def read_categories(db: db_dependency, skip: int = 0, limit: int = 100):
     try:
         categories = db.query(models.Category).offset(skip).limit(limit).all()
         return categories
@@ -84,7 +80,7 @@ async def read_categories(db: db_dependancy, skip: int = 0, limit: int = 100): #
         raise HTTPException(status_code = 500, detail = f"Error: {str(e)}")
 
 @app.get("/categories/{category_id}", response_model = CategoryModel, status_code = 200)
-async def read_category(category_id: int, db: db_dependancy):
+async def read_category(category_id: int, db: db_dependency):
     try:
         db_category = db.query(models.Category).filter(models.Category.id == category_id).first()
         if not db_category:
@@ -94,7 +90,7 @@ async def read_category(category_id: int, db: db_dependancy):
         raise HTTPException(status_code  = 500, detail = f"Error: {str(e)}")
 
 @app.put("/categories/{category_id}", response_model = CategoryModel, status_code = 200)
-async def update_category(category_id: int, category: CategoryCreate, db: db_dependancy):
+async def update_category(category_id: int, category: CategoryCreate, db: db_dependency):
     try:
         db_category = db.query(models.Category).filter(models.Category.id == category_id).first()
         if not db_category:
@@ -109,14 +105,11 @@ async def update_category(category_id: int, category: CategoryCreate, db: db_dep
         raise HTTPException(status_code = 500, detail = f"Error: {str(e)}")
 
 @app.delete("/categories/{category_id}", status_code = 204)
-async def delete_category(category_id: int, db: db_dependancy):
+async def delete_category(category_id: int, db: db_dependency):
     try:
         db_category = db.query(models.Category).filter(models.Category.id == category_id).first()
         if not db_category:
             raise HTTPException(status_code = 404, detail = "Category not found")
-
-        num_payments = len(db_category.payments)
-        print(f"Deleting {db_category.id} with {num_payments}")
 
         db.delete(db_category)
         db.commit()
@@ -125,9 +118,8 @@ async def delete_category(category_id: int, db: db_dependancy):
         db.rollback()
         raise HTTPException(status_code = 500, detail = f"Error: {str(e)}")
 
-# Don't even think in changing it later for abb, the db alredy does this by defaul!!!!!
 @app.get("/search/categories/", response_model = List[CategoryModel], status_code = 200)
-async def search_categories(name: Optional[str] = None, db: Session = Depends(get_db)): #look it up later as to why it doesn't' accept de db_dependacy like the others, the message is that it needs a default value
+async def search_categories(db: db_dependency, name: Optional[str] = None):
     try:
         query = db.query(models.Category)
         if name:
@@ -138,9 +130,9 @@ async def search_categories(name: Optional[str] = None, db: Session = Depends(ge
         db.rollback()
         raise HTTPException(status_code = 500, detail = f"Error: {str(e)}")
 
-# The payments endpoints
+# The payment endpoints
 @app.post("/payments/", response_model = PaymentModel, status_code = 201)
-async def create_payment(payment: PaymentCreate, db: db_dependancy):
+async def create_payment(payment: PaymentCreate, db: db_dependency):
     try:
         category = db.query(models.Category).filter(models.Category.id == payment.category_id).first()
         if not category:
@@ -155,8 +147,8 @@ async def create_payment(payment: PaymentCreate, db: db_dependancy):
         db.rollback()
         raise HTTPException(status_code = 500, detail = f"Error: {str(e)}")
 
-@app.get("/payment/", response_model = List[PaymentModel], status_code = 200)
-async def read_payments(db: db_dependancy, skip: int = 0, limit: int = 200):# I'm changing the limit because it makes more sence to have more payments than categories, but I will need to adjust it later, who has 200 diferent payments to do???
+@app.get("/payments/", response_model = List[PaymentModel], status_code = 200)
+async def read_payments(db: db_dependency, skip: int = 0, limit: int = 200):
     try:
         payments = db.query(models.Payment).offset(skip).limit(limit).all()
         return payments
@@ -164,8 +156,8 @@ async def read_payments(db: db_dependancy, skip: int = 0, limit: int = 200):# I'
         db.rollback()
         raise HTTPException(status_code = 500, detail = f"Error: {str(e)}")
 
-@app.get("/payment/{payment_id}", response_model = PaymentModel, status_code = 200)
-async def read_payment(payment_id: int, db: db_dependancy):
+@app.get("/payments/{payment_id}", response_model = PaymentModel, status_code = 200)
+async def read_payment(payment_id: int, db: db_dependency):
     try:
         db_payment = db.query(models.Payment).filter(models.Payment.id == payment_id).first()
         if not db_payment:
@@ -175,14 +167,43 @@ async def read_payment(payment_id: int, db: db_dependancy):
         db.rollback()
         raise HTTPException(status_code = 500, detail = f"Error: {str(e)}")
 
-@app.put("/payment/{payment_id}", response_model = PaymentModel, status_code = 200)
-async def update_payment(payment_id: int, payment: PaymentCreate, db: db_dependancy):
+@app.get("/search/payments/", response_model = List[PaymentModel], status_code = 200)
+async def search_payments(db: db_dependency, name: Optional[str] = None):
+    try:
+        query = db.query(models.Payment)
+        if name:
+            query = query.filter(models.Payment.name.startswith(name))
+        query = query.order_by(models.Payment.name.asc())
+        return query.all()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code = 500, detail = f"Error: {str(e)}")
+
+@app.get("/search/payments-by-category/", response_model = List[PaymentModel], status_code = 200)
+async def search_payments_by_category(db: db_dependency, name: Optional[str] = None):
+    try:
+        query = db.query(models.Payment)
+
+        if name:
+            categories = (db.query(models.Category).filter(models.Category.name.startswith(name)).all())
+            if not categories:
+                raise HTTPException(status_code = 404, detail = "Category not found")
+            category_ids = [category.id for category in categories]
+            query = query.filter(models.Payment.category_id.in_(category_ids))
+        query = query.order_by(models.Payment.name.asc())
+        return query.all()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code = 500, detail = f"Error: {str(e)}")
+
+@app.put("/payments/{payment_id}", response_model = PaymentModel, status_code = 200)
+async def update_payment(payment_id: int, payment: PaymentCreate, db: db_dependency):
     try:
         db_payment = db.query(models.Payment).filter(models.Payment.id == payment_id).first()
         if not db_payment:
             raise HTTPException(status_code = 404, detail = "payment not found")
 
-        payload = payment.dict() #do not use payments, u will mix it up with the other variables and functions later
+        payload = payment.dict()
         if "category_id" in payload:
             new_category = db.query(models.Category).filter(models.Category.id == payload["category_id"]).first()
             if not new_category:
@@ -197,4 +218,15 @@ async def update_payment(payment_id: int, payment: PaymentCreate, db: db_dependa
         db.rollback()
         raise HTTPException(status_code = 500, detail = f"Error:{str(e)}")
 
-
+@app.delete("/payments/{payment_id}", status_code = 204)
+async def delete_payment(payment_id: int, db: db_dependency):
+    try:
+        db_payment = db.query(models.Payment).filter(models.Payment.id == payment_id).first()
+        if not db_payment:
+            raise HTTPException(status_code = 404, detail = "Payment not found or does not exist")
+        db.delete(db_payment)
+        db.commit()
+        return None
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code = 500, detail = f"Error: {str(e)}")
