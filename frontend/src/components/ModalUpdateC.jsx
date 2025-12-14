@@ -142,7 +142,7 @@ export default function ModalUpdateC({ open, onClose }) {
                     <form onSubmit={handleSubmit} className="p-4 space-y-4">
                         <div className="relative" ref={dropdownRef}>
                             <label className="block text-sm text-ocean-text mb-1">Choose Category *</label>
-                            <button type="button" nClick={() => setOpenDropdown((prev) => !prev)} className="w-full h-10 px-3 bg-ocean-bg border border-ocean-border text-ocean-text rounded-md flex items-center justify-between">
+                            <button type="button" onClick={() => setOpenDropdown((prev) => !prev)} className="w-full h-10 px-3 bg-ocean-bg border border-ocean-border text-ocean-text rounded-md flex items-center justify-between">
                                 <span className="truncate">
                                     {selectedCategoryName || 'Select a category'}
                                 </span>
