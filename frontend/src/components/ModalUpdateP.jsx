@@ -1,4 +1,3 @@
-// components/ModalUpdateP.jsx
 import { useEffect, useState } from 'react'
 import { X, Pencil } from 'lucide-react'
 import { getPaymentById, updatePayment, getCategories } from '../api'

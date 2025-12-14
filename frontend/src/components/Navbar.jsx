@@ -14,19 +14,14 @@ export default function Navbar() {
     ]
 
     return (
-        <nav className="fixed top-0 w-full z-50 bg-ocean-bg/90 backdrop-blur-sm border-b border-ocean-border shadow-[0_2px_10px_rgba(0,0,0,0.12)]">
+        <nav className="fixed top-0 w-full z-50 bg-ocean-bg/90 backdrop-blur-sm border-b border-ocean-border shadow-[0_4px_12px_var(--color-ocean-primary)]">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-14 sm:h-16 md:h-20">
                     <div className="flex items-center space-x-3">
-                        <BarChart3 className="text-ocean-primary h-6 sm:h-8" />
-                        <div className="leading-tight">
-                            <span className="block text-ocean-title font-semibold text-base sm:text-lg md:text-xl tracking-wide">
-                                Finance Control
-                            </span>
-                            <span className="block text-ocean-text text-xs sm:text-sm">
-                                Manage expenses and categories
-                            </span>
-                        </div>
+                        <BarChart3 className="text-ocean-primary h-8 sm:h-10 md:h-12" />
+                        <span className="block text-ocean-title font-bold text-lg sm:text-xl md:text-2xl tracking-wide">
+                            Finance Control
+                        </span>
                     </div>
 
                     <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
@@ -40,7 +35,7 @@ export default function Navbar() {
                         ))}
                     </div>
 
-                    <button className="md:hidden p-2 text-ocean-text hover:text-ocean-title transition-colors cursor-pointer" onClick={() => setMobileMenuIsOpen((prev) => !prev)} aria-label="Toggle menu">
+                    <button className="md:hidden p-2 text-ocean-text hover:text-ocean-title transition-colors cursor-pointer" onClick={() => setMobileMenuIsOpen((prev) => !prev)}aria-label="Toggle menu">
                         {mobileMenuIsOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                     </button>
                 </div>
