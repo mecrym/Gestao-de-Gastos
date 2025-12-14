@@ -9,8 +9,17 @@ env/
 *.pyc
 
 
-#/frontend/node_modules/ 
-#/frontend/build/
+/frontend/node_modules/ 
+/frontend/build/
+/frontend/dist/
+/frontend/.vite/
+/frontend/src/components/CategoryList.jsx
+/frontend/src/components/SearchBar.jsx
+/frontend/src/components/PaymentList.jsx
+/frontend/src/components/PaymentForm.jsx
+
+*.vscode
 
 *.db
 *.sqlite
+
