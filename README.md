@@ -11,7 +11,7 @@ O tema escolhido foi um sistema simples de gestão de gastos, que seriam dividid
 - O usuário pode criar, listar, atualizar e excluir tanto categorias quanto pagamentos.  
 - Ao apagar uma categoria, todos os pagamentos realizados que fazem parte a ela também são apagados.
 
-![Modelagem Relacional](/img-docs/Captura%20de%20tela%20de%202025-12-14%2018-48-50.png)
+    ![Modelagem Relacional](/img-docs/Captura%20de%20tela%20de%202025-12-14%2018-48-50.png)
 
 ## Tecnologias Utilizadas
 
@@ -30,6 +30,7 @@ Algumas tiveram suas versões listadas pois algumas funcionalidades não funcion
 - Vite
 - TailwindCSS 4.1.18
 - Lucide React
+- Recharts
 - Axios
 
 ## Estrutura do Repositório
@@ -127,17 +128,14 @@ Algumas tiveram suas versões listadas pois algumas funcionalidades não funcion
   - Feedback visual para operações (loading, sucesso, erro).
 
 ## Imagens do Frontend
+Tela principal:
+    ![Frontend Screenshot](/img-docs/Captura%20de%20tela%20de%202025-12-14%2019-37-41.png)
 
-![Frontend Screenshot]()
+Tela de cadastro de Categoria:
+    ![Frontend Screenshot](/img-docs/Captura%20de%20tela%20de%202025-12-14%2019-37-58.png)
 
-![Frontend Screenshot]()
+Tela de Atualizar pagamento:
+    ![Frontend Screenshot](/img-docs/Captura%20de%20tela%20de%202025-12-14%2019-38-10.png)
 
-![Frontend Screenshot]()
-
-![Frontend Screenshot]()
-
-![Frontend Screenshot]()
-
-![Frontend Screenshot]()
 
 
