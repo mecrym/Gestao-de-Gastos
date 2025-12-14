@@ -40,13 +40,14 @@ export default function SearchBar({ onResults }) {
 		}
 	}
 
-	const btnBase = "h-11 w-11 bg-ocean-primary text-white font-semibold rounded-lg flex items-center justify-center shrink-0 shadow-sm transition-all duration-200"
-    const btnState = "hover:brightness-110 active:scale-95 disabled:opacity-50 disabled:active:scale-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-ocean-primary"
-    const buttonClass = `${btnBase} ${btnState}`
+	const btnBase = "h-11 w-11 bg-ocean-primary text-white font-semibold text-sm rounded-lg flex items-center justify-center shrink-0 cursor-pointer transition-all duration-200 transform"
+	const btnState = "hover:scale-105 hover:shadow-[0_0_8px_var(--color-ocean-primary)] active:scale-95 disabled:opacity-50 disabled:active:scale-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-ocean-primary"
+	const buttonClass = `${btnBase} ${btnState}`
+
 
 	return (
 		<section className="relative mb-6 overflow-visible">
-			<div className="relative bg-ocean-surface p-4 rounded-xl border border-ocean-border shadow-sm animate-in slide-in-from-right duration-300">
+			<div> 
 				<div className="flex flex-col md:flex-row gap-3 items-stretch">
 					<input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
 						placeholder="Search payments..."
@@ -100,16 +101,9 @@ function CategoryDropdown({ categories, value, onChange }) {
 			{open && (
 				<div className="absolute z-59 mt-2 w-full bg-ocean-surface/90 backdrop-blur-xl border border-ocean-border rounded-lg animate-in slide-in-from-top duration-200 shadown-xl ring-1 ring-black/5">
 					<ul role="listbox" className="max-h-60 overflow-auto py-1 custom-scrollbar m-0 p-0 list-none">
-						<DropdownItem active={value === ''} label="All categories" onClick={() => {
-							onChange('')
-							setOpen(false)}} />
+						<DropdownItem active={value === ''} label="All categories" onClick={() => { onChange(''), setOpen(false)}} />
 						{categories.map((cat) => (
-							<DropdownItem
-								key={cat.id} active={value === cat.name} label={cat.name} onClick={() => {
-									onChange(cat.name)
-									setOpen(false)
-								}}
-							/>
+							<DropdownItem key={cat.id} active={value === cat.name} label={cat.name} onClick={() => {onChange(cat.name), setOpen(false)}}/>
 						))}
 					</ul>
 				</div>
@@ -120,9 +114,7 @@ function CategoryDropdown({ categories, value, onChange }) {
 
 function DropdownItem({ label, active, onClick }) {
 	const baseClasses = "w-full text-left px-4 py-2.5 text-sm transition-all duration-150 border-l-2 block"
-	const stateClasses = active 
-		? "border-ocean-primary bg-ocean-primary/10 text-ocean-primary font-semibold" 
-		: "border-transparent text-ocean-text hover:text-ocean-title hover:bg-ocean-bg"
+	const stateClasses = active ? "border-ocean-primary bg-ocean-primary/10 text-ocean-primary font-semibold" : "border-transparent text-ocean-text hover:text-ocean-title hover:bg-ocean-bg"
 	const buttonClass = `${baseClasses} ${stateClasses}`
 
 	return (

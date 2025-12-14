@@ -14,7 +14,6 @@ env/
 /frontend/dist/
 /frontend/.vite/
 /frontend/src/components/CategoryList.jsx
-/frontend/src/components/SearchBar.jsx
 /frontend/src/components/PaymentList.jsx
 /frontend/src/components/PaymentForm.jsx
 

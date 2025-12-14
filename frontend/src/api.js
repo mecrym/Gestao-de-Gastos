@@ -2,7 +2,7 @@ import axios from 'axios'
 
 const api = axios.create({
 	baseURL: 'http://localhost:8000',
-	headers: {'Content-Type': 'aplication/json',
+	headers: {'Content-Type': 'application/json',
 	}
 })
 
@@ -27,8 +27,8 @@ export const getCategoryById = async(categoryId) => {
 	return response.data
 }
 
-export const createCategory = async(CatedoryData) => {
-	const response = await api.put(`/categories/${categoryId}`, categoryData)
+export const createCategory = async(categoryData) => {
+	const response = await api.post('/categories/', categoryData)
 	return response.data
 }
 
@@ -37,7 +37,7 @@ export const updateCategory = async(categoryId, categoryData) => {
 	return response.data
 }
 
-export const deleteCategory = async = async(categoryId) => {
+export const deleteCategory = async(categoryId) => {
 	const response = await api.delete(`/categories/${categoryId}`)
 	return response.data
 }
@@ -49,7 +49,7 @@ export const searchCategory = async(name = null) => {
 
 {/**payments */}
 export const getPayments = async(skip = 0, limit = 200) => {
-	const response = await api.get('/payments', {params: {skip, limit}})
+	const response = await api.get('/payments/', {params: {skip, limit}})
 	return response.data
 }
 
@@ -58,8 +58,8 @@ export const getPaymentById = async(paymentId) => {
 	return response.data
 }
 
-export const createPayment = async(paymentId, paymentData) => {
-	const response = await api.put('/payments/', paymentData)
+export const createPayment = async(paymentData) => {
+	const response = await api.post('/payments/', paymentData)
 	return response.data
 }
 
@@ -78,8 +78,8 @@ export const searchPayments = async(name = null) => {
 	return response.data
 }
 
-export const searchPaymentsByCategory = async(categoryName = null) => {
-	const response = await api.get('search/payments-by-category/', {params: {name: categoryName}})
+export const searchPaymentsByCategory = async(categoryName, searchTerm = null) => {
+	const response = await api.get('/search/payments-by-category/', {params: {name: categoryName, search: searchTerm}})
 	return response.data
 } 
 

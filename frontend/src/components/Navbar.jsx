@@ -1,51 +1,59 @@
 import React, { useState } from 'react'
-import { Menu, X, Wallet } from 'lucide-react'
+import { Menu, X, BarChart3 } from 'lucide-react'
 
 export default function Navbar() {
-        const [mobileMenuIsOpen, setMobileMenuIsOpen] = useState(false)
+    const [mobileMenuIsOpen, setMobileMenuIsOpen] = useState(false)
+    const blockClick = (e) => { e.preventDefault() }
 
-    const scrollToSection = (e, id) => {
-        e.preventDefault();
-        setMobileMenuIsOpen(false)
-
-        const element = document.getElementById(id)
-        if (element) {
-            const headerOffset = 80
-            const elementPosition = element.getBoundingClientRect().top
-            const offsetPosition = elementPosition + window.scrollY - headerOffset
-
-            window.scrollTo({
-                top: offsetPosition,
-                behavior: "smooth"
-            })
-        }
-    }
+    const items = [
+        { label: 'Dashboard' },
+        { label: 'Reports' },
+        { label: 'Budgets' },
+        { label: 'Goals' },
+        { label: 'Settings' }
+    ]
 
     return (
-        <nav className="fixed top-0 w-full z-50 transition-all duration-300 bg-ocean-bg backdrop-blur-sm">
+        <nav className="fixed top-0 w-full z-50 bg-ocean-bg/90 backdrop-blur-sm border-b border-ocean-border shadow-[0_2px_10px_rgba(0,0,0,0.12)]">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-14 sm:h-16 md:h-20">
-                    <div className="flex items-center space-x-2 group cursor-pointer">
-                        <Wallet className="text-ocean-title h-6 sm:h-8"/>
+                    <div className="flex items-center space-x-3">
+                        <BarChart3 className="text-ocean-primary h-6 sm:h-8" />
+                        <div className="leading-tight">
+                            <span className="block text-ocean-title font-semibold text-base sm:text-lg md:text-xl tracking-wide">
+                                Finance Control
+                            </span>
+                            <span className="block text-ocean-text text-xs sm:text-sm">
+                                Manage expenses and categories
+                            </span>
+                        </div>
                     </div>
+
                     <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
-                        {/**after u build the calendar page, u need to put the right links here */}
-                        {/**don't forget to change the name */}
-                        <a href="#" onClick={(e) => scrollToSection(e, '#')} className="text-ocean-text hover:text-ocean-title text-sm lg:text-base transition-colors">
-                            Calendar Page
-                        </a>
+                        {items.map((item) => (
+                            <a key={item.label} href="#" onClick={blockClick} className="relative group text-ocean-text hover:text-ocean-title text-sm lg:text-base transition-colors cursor-not-allowed">
+                                {item.label}
+                                <span className="hidden md:block pointer-events-none absolute left-1/2 -translate-x-1/2 top-full mt-2 whitespace-nowrap rounded-md bg-ocean-surface text-ocean-text text-xs px-2 py-1 border border-ocean-border opacity-0 group-hover:opacity-100 transition-opacity">
+                                    Feature under construction
+                                </span>
+                            </a>
+                        ))}
                     </div>
-                    <button className="md:hidden p-2 text-ocean-text hover:text-ocean-title transition-colors cursor-pointer" onClick={() => setMobileMenuIsOpen((prev) => !prev)} area-label = "Toggle menu">
-                        {mobileMenuIsOpen ? <X className="h-6 w-6"/> : <Menu className="h-6 w-6"/>}
+
+                    <button className="md:hidden p-2 text-ocean-text hover:text-ocean-title transition-colors cursor-pointer" onClick={() => setMobileMenuIsOpen((prev) => !prev)} aria-label="Toggle menu">
+                        {mobileMenuIsOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                     </button>
                 </div>
             </div>
+
             {mobileMenuIsOpen && (
-                <div className="md:hidden bg-ocean-bg backdrop-blur-lg border-t border-ocean-border animate-in slide-in-from-top duration-300">
+                <div className="md:hidden bg-ocean-bg/90 backdrop-blur-lg border-t border-ocean-border animate-in slide-in-from-top duration-300">
                     <div className="px-4 pt-2 pb-4 space-y-1">
-                        <a href="#" onClick={(e) => scrollToSection(e, '#')} className="block px-3 py-2 text-base font-medium text-ocean-text hover:text-white hover:bg-ocean-surface rounded-md">
-                            Calendar Page
-                        </a>
+                        {items.map((item) => (
+                            <a key={item.label} href="#" onClick={blockClick} className="block px-3 py-2 text-base font-medium text-ocean-text rounded-md transition-colors cursor-not-allowed hover:bg-ocean-surface hover:text-ocean-title">
+                                {item.label}
+                            </a>
+                        ))}
                     </div>
                 </div>
             )}
