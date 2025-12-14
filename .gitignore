@@ -8,7 +8,7 @@ venv/
 env/
 *.pyc
 
-# It doesn't have a frontend yet
+
 #/frontend/node_modules/ 
 #/frontend/build/
 
