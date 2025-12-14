@@ -42,4 +42,45 @@ export const deleteCategory = async = async(categoryId) => {
 	return response.data
 }
 
-export default api;
+export const searchCategory = async(name = null) => {
+	const response = await api.get('/search/categories/', {params: {name}})
+	return response.data
+}
+
+{/**payments */}
+export const getPayments = async(skip = 0, limit = 200) => {
+	const response = await api.get('/payments', {params: {skip, limit}})
+	return response.data
+}
+
+export const getPaymentById = async(paymentId) => {
+	const response = await api.get(`/payments/${paymentId}`)
+	return response.data
+}
+
+export const createPayment = async(paymentId, paymentData) => {
+	const response = await api.put('/payments/', paymentData)
+	return response.data
+}
+
+export const updatePayment = async(paymentId, paymentData) => {
+	const response = await api.put(`/payments/${paymentId}`, paymentData)
+	return response.data
+}
+
+export const deletePayment = async(paymentId) => {
+	const response = await api.delete(`/payments/${paymentId}`)
+	return response.status === 204
+}
+
+export const searchPayments = async(name = null) => {
+	const response = await api.get('/search/payments/', {params: {name}})
+	return response.data
+}
+
+export const searchPaymentsByCategory = async(categoryName = null) => {
+	const response = await api.get('search/payments-by-category/', {params: {name: categoryName}})
+	return response.data
+} 
+
+export default api
