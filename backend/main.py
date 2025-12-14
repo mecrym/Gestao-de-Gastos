@@ -13,6 +13,9 @@ origins = [ "http://localhost", "http://localhost:3000", "http://localhost:5173"
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 class PaymentBase(BaseModel):
@@ -74,7 +77,7 @@ async def create_category(category: CategoryCreate, db: db_dependency):
 @app.get("/categories/", response_model = List[CategoryModel], status_code = 200)
 async def read_categories(db: db_dependency, skip: int = 0, limit: int = 100):
     try:
-        categories = db.query(models.Category).offset(skip).limit(limit).all()
+        categories = db.query(models.Category).order_by(models.Category.name.asc()).offset(skip).limit(limit).all()
         return categories
     except Exception as e:
         raise HTTPException(status_code = 500, detail = f"Error: {str(e)}")

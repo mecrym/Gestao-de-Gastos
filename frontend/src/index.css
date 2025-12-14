@@ -1,17 +1,18 @@
 @import "tailwindcss";
 
 @theme {
-    /* Adicione '--color-' antes dos nomes para gerar as classes automáticas */
     --color-ocean-bg: #0f172a;
-    --color-ocean-surface: #1e293b; /* cards and neutral details */
-    --color-ocean-primary: #38bdf8;
-    --color-ocean-title: #f8fafc;
-    --color-ocean-text: #94a3b8;
+    --color-ocean-surface: #1e293b;
+    --color-ocean-primary: #00b4d8;
+    --color-ocean-title: #f1f5f9;
+    --color-ocean-text: #cbd5e1;
     --color-ocean-border: #334155;
 
-    --color-ocean-success: #4ade80;
-    --color-ocean-falure: #f87171;
+    --color-ocean-success: #10b981;
+    --color-ocean-edit: #eab308;
+    --color-ocean-delete: #ef4444;
 }
+
 
 @layer utilities {
     .animate-in{

@@ -1,205 +1,86 @@
-import axios from 'axios';
+import axios from 'axios'
 
-// Configuração base do axios
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+	baseURL: 'http://localhost:8000',
+	headers: {'Content-Type': 'application/json',
+	}
+})
 
-// Interceptor para tratar erros globalmente (opcional)
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    console.error('Erro na API:', error.response?.data || error.message);
-    return Promise.reject(error);
-  }
-);
+	(response) => response,
+	(e) => {
+		if (e.response) {
+			const {status, data} = e.response
+			return Promise.reject({status, message: `Error: ${data?.detail || e.message}`})
+		}
+		return Promise.reject({ status:500, message:`Error: ${e.message}`})
+	}
+)
 
-// ==================== CATEGORIAS ====================
+export const getCategories = async(skip = 0, limit = 100) =>{
+	const response = await api.get('/categories/', {params: {skip, limit}})
+	return response.data
+}
 
-/**
- * Busca todas as categorias
- * GET /categories/
- */
-export const getCategories = async (skip = 0, limit = 100) => {
-  try {
-    const response = await api.get('/categories/', {
-      params: { skip, limit }
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
+export const getCategoryById = async(categoryId) => {
+	const response = await api.get(`/categories/${categoryId}`)
+	return response.data
+}
 
-/**
- * Busca uma categoria específica
- * GET /categories/{category_id}
- */
-export const getCategoryById = async (categoryId) => {
-  try {
-    const response = await api.get(`/categories/${categoryId}`);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
+export const createCategory = async(categoryData) => {
+	const response = await api.post('/categories/', categoryData)
+	return response.data
+}
 
-/**
- * Cria uma nova categoria
- * POST /categories/
- * @param {Object} categoryData - { name, description?, color? }
- */
-export const createCategory = async (categoryData) => {
-  try {
-    const response = await api.post('/categories/', categoryData);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
+export const updateCategory = async(categoryId, categoryData) => {
+	const response = await api.put(`/categories/${categoryId}`, categoryData)
+	return response.data
+}
 
-/**
- * Atualiza uma categoria existente
- * PUT /categories/{category_id}
- */
-export const updateCategory = async (categoryId, categoryData) => {
-  try {
-    const response = await api.put(`/categories/${categoryId}`, categoryData);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
+export const deleteCategory = async(categoryId) => {
+	const response = await api.delete(`/categories/${categoryId}`)
+	return response.data
+}
 
-/**
- * Deleta uma categoria
- * DELETE /categories/{category_id}
- */
-export const deleteCategory = async (categoryId) => {
-  try {
-    await api.delete(`/categories/${categoryId}`);
-    return true;
-  } catch (error) {
-    throw error;
-  }
-};
+export const searchCategory = async(name = null) => {
+	const response = await api.get('/search/categories/', {params: {name}})
+	return response.data
+}
 
-/**
- * Busca categorias por nome
- * GET /search/categories/?name=texto
- */
-export const searchCategories = async (name = null) => {
-  try {
-    const response = await api.get('/search/categories/', {
-      params: { name }
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
+{/**payments */}
+export const getPayments = async(skip = 0, limit = 200) => {
+	const response = await api.get('/payments/', {params: {skip, limit}})
+	return response.data
+}
 
-// ==================== PAGAMENTOS ====================
+export const getPaymentById = async(paymentId) => {
+	const response = await api.get(`/payments/${paymentId}`)
+	return response.data
+}
 
-/**
- * Busca todos os pagamentos
- * GET /payments/
- */
-export const getPayments = async (skip = 0, limit = 200) => {
-  try {
-    const response = await api.get('/payments/', {
-      params: { skip, limit }
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
+export const createPayment = async(paymentData) => {
+	const response = await api.post('/payments/', paymentData)
+	return response.data
+}
 
-/**
- * Busca um pagamento específico
- * GET /payments/{payment_id}
- */
-export const getPaymentById = async (paymentId) => {
-  try {
-    const response = await api.get(`/payments/${paymentId}`);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
+export const updatePayment = async(paymentId, paymentData) => {
+	const response = await api.put(`/payments/${paymentId}`, paymentData)
+	return response.data
+}
 
-/**
- * Cria um novo pagamento
- * POST /payments/
- * @param {Object} paymentData - { name, date, value, category_id, is_recurring? }
- */
-export const createPayment = async (paymentData) => {
-  try {
-    const response = await api.post('/payments/', paymentData);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
+export const deletePayment = async(paymentId) => {
+	const response = await api.delete(`/payments/${paymentId}`)
+	return response.status === 204
+}
 
-/**
- * Atualiza um pagamento existente
- * PUT /payments/{payment_id}
- */
-export const updatePayment = async (paymentId, paymentData) => {
-  try {
-    const response = await api.put(`/payments/${paymentId}`, paymentData);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
+export const searchPayments = async(name = null) => {
+	const response = await api.get('/search/payments/', {params: {name}})
+	return response.data
+}
 
-/**
- * Deleta um pagamento
- * DELETE /payments/{payment_id}
- */
-export const deletePayment = async (paymentId) => {
-  try {
-    await api.delete(`/payments/${paymentId}`);
-    return true;
-  } catch (error) {
-    throw error;
-  }
-};
+export const searchPaymentsByCategory = async(categoryName, searchTerm = null) => {
+	const response = await api.get('/search/payments-by-category/', {params: {name: categoryName, search: searchTerm}})
+	return response.data
+} 
 
-/**
- * Busca pagamentos por nome
- * GET /search/payments/?name=texto
- */
-export const searchPayments = async (name = null) => {
-  try {
-    const response = await api.get('/search/payments/', {
-      params: { name }
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-/**
- * Busca pagamentos por nome de categoria
- * GET /search/payments-by-category/?name=texto
- */
-export const searchPaymentsByCategory = async (categoryName = null) => {
-  try {
-    const response = await api.get('/search/payments-by-category/', {
-      params: { name: categoryName }
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-export default api;
+export default api
